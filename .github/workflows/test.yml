@@ -1,0 +1,37 @@
+name: Demo tests (mock only)
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-x86:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x86
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Pure tests
+        run: python -m unittest discover -s tests -v
+      - name: Build mock DLL
+        run: |
+          cmake -S tests/mock -B build/mock -G "Visual Studio 17 2022" -A Win32
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build/mock --config Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build C++
+        run: |
+          cmake -S examples/cpp -B build/cpp -G "Visual Studio 17 2022" -A Win32
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build/cpp --config Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build C# x86 self-contained
+        run: dotnet publish examples/csharp/TradeApiDemo.csproj -c Release -r win-x86 --self-contained true -o build/csharp
+      - name: Run all language examples against mock only
+        run: python tests/integration.py --runtime build/mock/Release --cpp build/cpp/Release/tradeapi_demo.exe --csharp build/csharp/TradeApiDemo.exe

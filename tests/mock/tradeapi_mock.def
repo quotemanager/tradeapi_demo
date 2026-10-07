@@ -1,0 +1,11 @@
+LIBRARY tradeApi
+EXPORTS
+    OpenTdx=_OpenTdx@0
+    CloseTdx=_CloseTdx@0
+    Logon=_Logon@40
+    Logoff=_Logoff@4
+    QueryData=_QueryData@16
+    QueryShareholderCodes=_QueryShareholderCodes@12
+    SendOrder=_SendOrder@36
+    CancelOrder=_CancelOrder@20
+    TradeApiDemoMockMarker=_TradeApiDemoMockMarker@0

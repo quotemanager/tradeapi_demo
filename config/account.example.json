@@ -1,0 +1,10 @@
+{
+  "runtime_dir": "C:\\TradeApi",
+  "broker_code": "BROKER_A:normal",
+  "account_no": "YOUR_ACCOUNT",
+  "trade_account": "",
+  "host": "",
+  "port": 0,
+  "version": "",
+  "yyb_id": 0
+}

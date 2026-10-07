@@ -1,0 +1,10 @@
+{
+  "funds": {"schema":"tradeapi.funds.v1","broker_code":"MOCK","account_variant":"normal","balance":"10000.00","available":"8000.00"},
+  "holdings": {"schema":"tradeapi.holdings.v1","count":0,"positions":[]},
+  "order_accepted": {"schema":"tradeapi.order.v1","accepted":true,"order_id":"123456","message":null},
+  "order_rejected": {"schema":"tradeapi.order.v1","accepted":false,"order_id":"-1","message":"当前时间不允许委托"},
+  "order_unknown": {"schema":"tradeapi.order.v1","accepted":null,"order_id":null},
+  "order_missing": {"schema":"tradeapi.order.v1","order_id":"123456"},
+  "cancel_accepted": {"schema":"tradeapi.cancel.v1","accepted":true,"order_id":"789","requested_order_id":"123456","requested_exchange_id":"1","cancellation_completed":null},
+  "cancel_unknown": {"schema":"tradeapi.cancel.v1","accepted":null,"order_id":null,"requested_order_id":"123456","reconciliation_required":true}
+}
