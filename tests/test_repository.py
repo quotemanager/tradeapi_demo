@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import struct
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
@@ -111,10 +112,18 @@ class RepositoryTests(unittest.TestCase):
                 self.assertTrue(destination.is_relative_to(ROOT), (path, target))
                 self.assertTrue(destination.exists(), (path, target))
         readme = (ROOT / 'README.md').read_text(encoding='utf-8')
-        self.assertIn('assets/wechat.png', readme)
-        self.assertIn('assets/telegram.jpg', readme)
+        self.assertIn('assets/wechat-qr.png', readme)
+        self.assertIn('assets/telegram-qr.png', readme)
         self.assertIn('https://t.me/tradeapi8', readme)
         self.assertLess(readme.index('## 购买与接入咨询'), readme.index('## 快速开始'))
+
+    def test_contact_qr_images_are_square(self):
+        for name in ('wechat-qr.png', 'telegram-qr.png'):
+            header = (ROOT / 'assets' / name).read_bytes()[:24]
+            self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
+            width, height = struct.unpack('>II', header[16:24])
+            self.assertEqual(width, height, name)
+            self.assertGreaterEqual(width, 280, name)
 
     def test_public_config_has_no_credentials(self):
         config = json.loads((ROOT / 'config/account.example.json').read_text(encoding='utf-8'))
@@ -130,7 +139,8 @@ class RepositoryTests(unittest.TestCase):
         for path in paths:
             result = subprocess.run(['git', 'check-ignore', '--no-index', '-q', path], cwd=ROOT)
             self.assertEqual(result.returncode, 0, path)
-        for path in ['config/account.example.json', 'assets/wechat.png', 'assets/telegram.jpg', 'tests/fixtures/responses.json']:
+        for path in ['config/account.example.json', 'assets/wechat.png', 'assets/telegram.jpg',
+                     'assets/wechat-qr.png', 'assets/telegram-qr.png', 'tests/fixtures/responses.json']:
             result = subprocess.run(['git', 'check-ignore', '--no-index', '-q', path], cwd=ROOT)
             self.assertEqual(result.returncode, 1, path)
 
