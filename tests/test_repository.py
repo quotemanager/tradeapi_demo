@@ -2,16 +2,66 @@
 import json
 import contextlib
 import io
+import os
 from pathlib import Path
 import re
 import subprocess
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class RepositoryTests(unittest.TestCase):
+    def test_homepage_covers_all_interfaces_and_query_categories(self):
+        source = (ROOT / 'README.md').read_text(encoding='utf-8')
+        for name in ('OpenTdx', 'Logon', 'QueryData', 'QueryShareholderCodes',
+                     'SendOrder', 'CancelOrder', 'Logoff', 'CloseTdx'):
+            self.assertIn(f'| `{name}` |', source)
+        for category in range(7):
+            self.assertIn(f'query --category {category}', source)
+        for heading in ('初始化、登录与退出', '数据查询', '股东代码查询', '委托示例', '撤单示例'):
+            self.assertIn('## ' + heading, source)
+        for snippet in re.findall(r'```json\n(.*?)\n```', source, re.DOTALL):
+            self.assertIsInstance(json.loads(snippet), dict)
+
+    def test_homepage_login_and_readonly_example_cleans_up_on_success_and_error(self):
+        import sys
+        sys.path.insert(0, str(ROOT / 'examples/python'))
+        import tradeapi
+        source = (ROOT / 'README.md').read_text(encoding='utf-8')
+        snippets = re.findall(r'```python\n(.*?)\n```', source, re.DOTALL)
+        self.assertEqual(len(snippets), 1)
+        compiled = compile(snippets[0], 'README lifecycle example', 'exec')
+        for query_fails in (False, True):
+            with self.subTest(query_fails=query_fails):
+                session = MagicMock()
+                api = session.__enter__.return_value
+                api.login.return_value = 37
+                api.query.return_value = {'schema': 'tradeapi.funds.v1'}
+                api.shareholders.return_value = {'shareholders': []}
+                if query_fails:
+                    api.query.side_effect = RuntimeError('synthetic query error')
+                with patch.object(tradeapi, 'TradeApi', return_value=session), \
+                     patch.object(tradeapi, 'load_config', return_value={'broker_code': 'MOCK:normal'}), \
+                     patch.dict(os.environ, {'TRADEAPI_PASSWORD': 'TEST_PASSWORD', 'TRADEAPI_TX_PASSWORD': ''}), \
+                     patch.object(sys, 'path', sys.path.copy()), contextlib.redirect_stdout(io.StringIO()):
+                    if query_fails:
+                        with self.assertRaisesRegex(RuntimeError, 'synthetic query error'):
+                            exec(compiled, {})
+                    else:
+                        exec(compiled, {})
+                session.__enter__.assert_called_once()
+                session.__exit__.assert_called_once()
+                api.login.assert_called_once_with('TEST_PASSWORD', '')
+                api.query.assert_called_once_with(0)
+                if query_fails:
+                    api.shareholders.assert_not_called()
+                else:
+                    api.shareholders.assert_called_once_with()
+                api.order.assert_not_called()
+                api.cancel.assert_not_called()
+
     def test_documented_python_actions_confirm_and_send_once(self):
         import sys
         sys.path.insert(0, str(ROOT / 'examples/python'))
@@ -62,6 +112,8 @@ class RepositoryTests(unittest.TestCase):
                 self.assertTrue(destination.exists(), (path, target))
         readme = (ROOT / 'README.md').read_text(encoding='utf-8')
         self.assertIn('assets/wechat.png', readme)
+        self.assertIn('assets/telegram.jpg', readme)
+        self.assertIn('https://t.me/tradeapi8', readme)
         self.assertLess(readme.index('## 购买与接入咨询'), readme.index('## 快速开始'))
 
     def test_public_config_has_no_credentials(self):
@@ -78,7 +130,7 @@ class RepositoryTests(unittest.TestCase):
         for path in paths:
             result = subprocess.run(['git', 'check-ignore', '--no-index', '-q', path], cwd=ROOT)
             self.assertEqual(result.returncode, 0, path)
-        for path in ['config/account.example.json', 'assets/wechat.png', 'tests/fixtures/responses.json']:
+        for path in ['config/account.example.json', 'assets/wechat.png', 'assets/telegram.jpg', 'tests/fixtures/responses.json']:
             result = subprocess.run(['git', 'check-ignore', '--no-index', '-q', path], cwd=ROOT)
             self.assertEqual(result.returncode, 1, path)
 
