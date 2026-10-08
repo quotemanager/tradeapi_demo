@@ -6,12 +6,12 @@ A 股程序化交易接口多语言调用示例。基于 tradeapi 通达信交�
 
 ## 购买与接入咨询
 
-**购买 tradeapi 接口、获取运行包及咨询接入，可通过微信或 Telegram 联系。**
+**购买 tradeapi 接口、获取运行包及咨询接入，可通过 Telegram 联系。**
 
-| 微信 | Telegram |
-| :---: | :---: |
-| <img src="assets/wechat-qr.png" width="280" alt="tradeapi 接口购买与接入咨询微信二维码"> | <img src="assets/telegram-qr.png" width="280" alt="tradeapi Telegram 联系二维码 @tradeapi8"> |
-| 扫码添加微信 | [@tradeapi8 · 点击联系](https://t.me/tradeapi8) |
+| Telegram |
+| :---: |
+| <img src="assets/telegram-qr.png" width="280" alt="tradeapi Telegram 联系二维码 @tradeapi8"> |
+| [@tradeapi8 · 点击联系](https://t.me/tradeapi8) |
 
 二维码用于添加联系人咨询，不是支付码。请勿在 GitHub Issue 中发送账号、密码、授权文件或账户日志。
 
