@@ -1,6 +1,10 @@
-# tradeapi_demo
+# tradeapi券商直连交易接口示例
 
-A 股程序化交易接口多语言调用示例。基于 tradeapi 通达信交易接口，演示登录、查询、买入、卖出、融资买入及撤单，配套通用接口使用说明。
+A 股程序化交易接口多语言调用示例。基于 tradeapi 券商直连接口，演示登录、查询、买入、卖出、融资买入及撤单，配套通用接口使用说明。
+
+产品介绍网站：[tradeapi.cc](https://tradeapi.cc/)。
+
+相关示例工程：[通达信与同花顺客户端交易接口示例](https://github.com/quotemanager/tradeapi_client_demo)，提供 HTTP、Python SDK 和 DLL 等接入示例。
 
 > 本仓库提供调用示例，**不包含 tradeapi 运行包**，也不是交易策略或收益承诺。实际支持范围以获得的运行包及证券账户权限为准。
 
